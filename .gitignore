@@ -1,0 +1,98 @@
+# Visual Studio Code
+.vscode/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# Compiled output
+bin/
+obj/
+
+# NuGet packages
+*.nupkg
+*.paket.sha
+packages/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Roslyn cache
+*.ide/
+
+# Test Results
+[Tt]est[Rr]esult*/
+*.testsettings
+!.github/
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Ll]og/
+[Ll]ogs/
+[Ll]ogFiles/
+[Oo]bj/
+[Tt]emp/
+[Tt]est[Rr]esults/
+# Visual Studio 2019
+.vs2019/
+# .NET Scaffolding
+Generated_Code/
+
+# ASP.NET Scaffolding
+GeneratedArtifacts/
+
+# Resharper
+_ReSharper*/
+*.resharper
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+[Dd]esktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# Visual Studio 2022
+.vs2022/
+
+# Rider
+.idea/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Roslyn cache
+*.ide/
+
+# Others
+*.Cache
+*.bak
+*.history
+appsettings.Development.json
+.DS_Store
