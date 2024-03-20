@@ -1,12 +1,12 @@
-﻿namespace sistema_bancario_post.Controllers;
+﻿namespace sistema_bancario_api.Controllers;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using sistema_bancario_post.Data;
-using sistema_bancario_post.Data.Entities.Login;
+using sistema_bancario_api.Data;
+using sistema_bancario_api.Data.Entities.Table;
 
 [ApiController]
-[Route("analisis1/[controller]")]
+[Route("bancoAPI/[controller]")]
 public class UserLoginController : ControllerBase
 {
     private readonly UserLoginTable _userLoginTable;
@@ -27,7 +27,7 @@ public class UserLoginController : ControllerBase
     {
         var userLoginPost = await _userLoginTable.Logins.AddAsync(log);
         await _userLoginTable.SaveChangesAsync();
-        return Ok(userLoginPost.Entity);
+        return Ok("El registro se inserto correctamente!");
     }
 
  
@@ -52,10 +52,10 @@ public class UserLoginController : ControllerBase
 
         _userLoginTable.Logins.Remove(userLoginDelete);
         await _userLoginTable.SaveChangesAsync();
-        return NoContent();
+        return Ok("El registro se elimino de manera correcta");
     }
 
-    [Route("getuserbyid")]
+    [Route("getuserbyid/{userid}")]
     [HttpGet]
     public async Task<IActionResult> getByUSERID(int userid)
     {

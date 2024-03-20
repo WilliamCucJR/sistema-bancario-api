@@ -1,8 +1,7 @@
-﻿namespace sistema_bancario_post.Data;
+﻿namespace sistema_bancario_api.Data;
 
 using Microsoft.EntityFrameworkCore;
-using Oracle.EntityFrameworkCore;
-using sistema_bancario_post.Data.Entities.Login;
+using sistema_bancario_api.Data.Entities.Table;
 
 public class UserLoginTable : DbContext
 {
