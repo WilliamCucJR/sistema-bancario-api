@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace sistema_bancario_post.Data.Entities.Login
+namespace sistema_bancario_api.Data.Entities.Table
 {
     [Table("USERLOGIN")]
     public class USERLOGIN
