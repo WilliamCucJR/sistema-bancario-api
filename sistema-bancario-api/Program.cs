@@ -8,11 +8,12 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<MunicipioTable>(options =>
+builder.Services.AddDbContext<UserLoginTable>(options =>
 {
     options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
 }
 );
+
 
 var app = builder.Build();
 
