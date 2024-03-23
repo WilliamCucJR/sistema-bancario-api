@@ -14,6 +14,16 @@ builder.Services.AddDbContext<UserLoginTable>(options =>
 }
 );
 
+builder.Services.AddDbContext<MonedaTable>(options =>
+{
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
+});
+
+builder.Services.AddDbContext<TipoCuentaTable>(options =>
+{
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
+});
+
 
 var app = builder.Build();
 
