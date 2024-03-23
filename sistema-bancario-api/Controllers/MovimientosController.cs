@@ -7,37 +7,37 @@ namespace sistema_bancario_api.Controllers
 {
     [ApiController]
     [Route("bancoAPI/[controller]")]
-    public class TipoCuentaController : ControllerBase
+    public class MovimientosController : ControllerBase
     {
-        private readonly TipoCuentaTable _tipoCuentaTable;
+        private readonly MovimientosTable _movimientoTable;
 
-        public TipoCuentaController(TipoCuentaTable tipoCuenta)
+        public MovimientosController(MovimientosTable MovTable)
         {
-            _tipoCuentaTable = tipoCuenta;
+            _movimientoTable = MovTable;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            var userLoginGet = await _tipoCuentaTable.TipoCuentas.ToListAsync();
+            var userLoginGet = await _movimientoTable.Moves.ToListAsync();
             return Ok(userLoginGet);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync(TIPO_CUENTA log)
+        public async Task<IActionResult> PostAsync(MOVIMIENTOS log)
         {
-            var userLoginPost = await _tipoCuentaTable.TipoCuentas.AddAsync(log);
-            await _tipoCuentaTable.SaveChangesAsync();
+            var userLoginPost = await _movimientoTable.Moves.AddAsync(log);
+            await _movimientoTable.SaveChangesAsync();
             return Ok("El registro se inserto correctamente!");
         }
 
 
 
         [HttpPut]
-        public async Task<IActionResult> PutAsync(TIPO_CUENTA log)
+        public async Task<IActionResult> PutAsync(MOVIMIENTOS log)
         {
-            _tipoCuentaTable.TipoCuentas.Update(log);
-            await _tipoCuentaTable.SaveChangesAsync();
+            _movimientoTable.Moves.Update(log);
+            await _movimientoTable.SaveChangesAsync();
             return NoContent();
         }
 
@@ -45,14 +45,14 @@ namespace sistema_bancario_api.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync(int USERID)
         {
-            var userLoginDelete = await _tipoCuentaTable.TipoCuentas.FindAsync(USERID);
+            var userLoginDelete = await _movimientoTable.Moves.FindAsync(USERID);
             if (userLoginDelete == null)
             {
                 return NotFound();
             }
 
-            _tipoCuentaTable.TipoCuentas.Remove(userLoginDelete);
-            await _tipoCuentaTable.SaveChangesAsync();
+            _movimientoTable.Moves.Remove(userLoginDelete);
+            await _movimientoTable.SaveChangesAsync();
             return Ok("El registro se elimino de manera correcta");
         }
 
@@ -60,7 +60,7 @@ namespace sistema_bancario_api.Controllers
         [HttpGet]
         public async Task<IActionResult> getByUSERID(int userid)
         {
-            var usergetByUSERID = await _tipoCuentaTable.TipoCuentas.FindAsync(userid);
+            var usergetByUSERID = await _movimientoTable.Moves.FindAsync(userid);
             return Ok(usergetByUSERID);
         }
     }

@@ -7,37 +7,37 @@ namespace sistema_bancario_api.Controllers
 {
     [ApiController]
     [Route("bancoAPI/[controller]")]
-    public class TipoCuentaController : ControllerBase
+    public class BancoController : ControllerBase
     {
-        private readonly TipoCuentaTable _tipoCuentaTable;
+        private readonly BancoTable _bancoTable;
 
-        public TipoCuentaController(TipoCuentaTable tipoCuenta)
+        public BancoController(BancoTable bancoTable)
         {
-            _tipoCuentaTable = tipoCuenta;
+            _bancoTable = bancoTable;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            var userLoginGet = await _tipoCuentaTable.TipoCuentas.ToListAsync();
-            return Ok(userLoginGet);
+            var monedaTableGet = await _bancoTable.bancos.ToListAsync();
+            return Ok(monedaTableGet);
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync(TIPO_CUENTA log)
+        public async Task<IActionResult> PostAsync(BANCO log)
         {
-            var userLoginPost = await _tipoCuentaTable.TipoCuentas.AddAsync(log);
-            await _tipoCuentaTable.SaveChangesAsync();
+            var userLoginPost = await _bancoTable.bancos.AddAsync(log);
+            await _bancoTable.SaveChangesAsync();
             return Ok("El registro se inserto correctamente!");
         }
 
 
 
         [HttpPut]
-        public async Task<IActionResult> PutAsync(TIPO_CUENTA log)
+        public async Task<IActionResult> PutAsync(BANCO log)
         {
-            _tipoCuentaTable.TipoCuentas.Update(log);
-            await _tipoCuentaTable.SaveChangesAsync();
+            _bancoTable.bancos.Update(log);
+            await _bancoTable.SaveChangesAsync();
             return NoContent();
         }
 
@@ -45,14 +45,14 @@ namespace sistema_bancario_api.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteAsync(int USERID)
         {
-            var userLoginDelete = await _tipoCuentaTable.TipoCuentas.FindAsync(USERID);
+            var userLoginDelete = await _bancoTable.bancos.FindAsync(USERID);
             if (userLoginDelete == null)
             {
                 return NotFound();
             }
 
-            _tipoCuentaTable.TipoCuentas.Remove(userLoginDelete);
-            await _tipoCuentaTable.SaveChangesAsync();
+            _bancoTable.bancos.Remove(userLoginDelete);
+            await _bancoTable.SaveChangesAsync();
             return Ok("El registro se elimino de manera correcta");
         }
 
@@ -60,7 +60,7 @@ namespace sistema_bancario_api.Controllers
         [HttpGet]
         public async Task<IActionResult> getByUSERID(int userid)
         {
-            var usergetByUSERID = await _tipoCuentaTable.TipoCuentas.FindAsync(userid);
+            var usergetByUSERID = await _bancoTable.bancos.FindAsync(userid);
             return Ok(usergetByUSERID);
         }
     }
