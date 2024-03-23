@@ -11,9 +11,9 @@ namespace sistema_bancario_api.Controllers
     {
         private readonly TipoCuentaTable _tipoCuentaTable;
 
-        public TipoCuentaController(TipoCuentaTable tipoCuentaTable)
+        public TipoCuentaController(TipoCuentaTable tipoCuenta)
         {
-            _tipoCuentaTable = tipoCuentaTable;
+            _tipoCuentaTable = tipoCuenta;
         }
 
         [HttpGet]

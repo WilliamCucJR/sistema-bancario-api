@@ -24,7 +24,7 @@ namespace sistema_bancario_api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync(TIPO_CUENTA log)
+        public async Task<IActionResult> PostAsync(MOVIMIENTOS log)
         {
             var userLoginPost = await _movimientoTable.Moves.AddAsync(log);
             await _movimientoTable.SaveChangesAsync();
