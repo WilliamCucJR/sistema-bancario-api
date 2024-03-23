@@ -24,6 +24,11 @@ builder.Services.AddDbContext<TipoCuentaTable>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
 });
 
+builder.Services.AddDbContext<TipoDocumentoTable>(options =>
+{
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
+});
+
 
 var app = builder.Build();
 
