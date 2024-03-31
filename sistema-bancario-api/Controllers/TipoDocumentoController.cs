@@ -1,67 +1,88 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 using sistema_bancario_api.Data;
 using sistema_bancario_api.Data.Entities.Table;
 
 namespace sistema_bancario_api.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("bancoAPI/[controller]")]
     public class TipoDocumentoController : ControllerBase
     {
-        private readonly TipoDocumentoTable _tipoDocTable;
+        private readonly TipoDocumentoTable _context;
 
-        public TipoDocumentoController(TipoDocumentoTable tipoDocTable)
+        public TipoDocumentoController(TipoDocumentoTable context)
         {
-            _tipoDocTable = tipoDocTable;
+            _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        // GET: api/TipoDocumento
+        [HttpGet("GetAllTipoDocumentos")]
+        public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentos()
         {
-            var userLoginGet = await _tipoDocTable.TipoDocs.ToListAsync();
-            return Ok(userLoginGet);
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostAsync(TIPO_DOCUMENTO log)
+        // GET: api/TipoDocumento/5
+        [HttpGet("GetTipoDocumento/{id}")]
+        public async Task<ActionResult<TIPO_DOCUMENTO>> GetTipoDocumento(int id)
         {
-            var userLoginPost = await _tipoDocTable.TipoDocs.AddAsync(log);
-            await _tipoDocTable.SaveChangesAsync();
-            return Ok("El registro se inserto correctamente!");
-        }
+            var tipoDocumento = await _context.TipoDocs.FromSqlRaw($"SELECT * FROM TIPO_DOCUMENTO WHERE ID = {id}").FirstOrDefaultAsync();
 
-
-
-        [HttpPut]
-        public async Task<IActionResult> PutAsync(TIPO_DOCUMENTO log)
-        {
-            _tipoDocTable.TipoDocs.Update(log);
-            await _tipoDocTable.SaveChangesAsync();
-            return NoContent();
-        }
-
-        [Route("{USERID}")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(int USERID)
-        {
-            var userLoginDelete = await _tipoDocTable.TipoDocs.FindAsync(USERID);
-            if (userLoginDelete == null)
+            if (tipoDocumento == null)
             {
                 return NotFound();
             }
 
-            _tipoDocTable.TipoDocs.Remove(userLoginDelete);
-            await _tipoDocTable.SaveChangesAsync();
-            return Ok("El registro se elimino de manera correcta");
+            return tipoDocumento;
         }
 
-        [Route("getuserbyid/{userid}")]
-        [HttpGet]
-        public async Task<IActionResult> getByUSERID(int userid)
+        // POST: api/TipoDocumento
+        [HttpPost("CreateTipoDocumento")]
+        public async Task<ActionResult<TIPO_DOCUMENTO>> PostTipoDocumento(TIPO_DOCUMENTO tipoDocumento)
         {
-            var usergetByUSERID = await _tipoDocTable.TipoDocs.FindAsync(userid);
-            return Ok(usergetByUSERID);
+            string consulta = "INSERT INTO TIPO_DOCUMENTO (NOMBRE_DOCUMENTO, DESCRIPCION, OPERACION) VALUES (:nombreDocumento, :descripcion, :operacion)";
+            var parametros = new OracleParameter[]
+            {
+                new OracleParameter("nombreDocumento", tipoDocumento.NOMBRE_DOCUMENTO),
+                new OracleParameter("descripcion", tipoDocumento.DESCRIPCION),
+                new OracleParameter("operacion", tipoDocumento.OPERACION)
+            };
+            await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+
+            return CreatedAtAction("GetTipoDocumento", new { id = tipoDocumento.ID }, new { message = "Tipo de documento creado con éxito", tipoDocumento });
+        }
+
+        // PUT: api/TipoDocumento/5
+        [HttpPut("UpdateTipoDocumento/{id}")]
+        public async Task<IActionResult> PutTipoDocumento(int id, TIPO_DOCUMENTO tipoDocumento)
+        {
+            if (id != tipoDocumento.ID)
+            {
+                return BadRequest();
+            }
+
+            string consulta = "UPDATE TIPO_DOCUMENTO SET NOMBRE_DOCUMENTO = :nombreDocumento, DESCRIPCION = :descripcion, OPERACION = :operacion WHERE ID = :id";
+            var parametros = new OracleParameter[]
+            {
+                new OracleParameter("nombreDocumento", tipoDocumento.NOMBRE_DOCUMENTO),
+                new OracleParameter("descripcion", tipoDocumento.DESCRIPCION),
+                new OracleParameter("operacion", tipoDocumento.OPERACION),
+                new OracleParameter("id", id)
+            };
+            await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+
+            return Ok(new { message = "Tipo de documento actualizado con éxito" });
+        }
+
+        // DELETE: api/TipoDocumento/5
+        [HttpDelete("DeleteTipoDocumento/{id}")]
+        public async Task<IActionResult> DeleteTipoDocumento(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync($"DELETE FROM TIPO_DOCUMENTO WHERE ID = {id}");
+
+            return Ok(new { message = "Tipo de documento eliminado con éxito" });
         }
     }
 }

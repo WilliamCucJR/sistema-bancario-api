@@ -1,67 +1,95 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Oracle.ManagedDataAccess.Client;
 using sistema_bancario_api.Data;
 using sistema_bancario_api.Data.Entities.Table;
 
 namespace sistema_bancario_api.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("bancoAPI/[controller]")]
     public class BancoController : ControllerBase
     {
-        private readonly BancoTable _bancoTable;
+        private readonly BancoTable _context;
 
-        public BancoController(BancoTable bancoTable)
+        public BancoController(BancoTable context)
         {
-            _bancoTable = bancoTable;
+            _context = context;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAsync()
+        // GET: api/Banco
+        [HttpGet("GetAllBancos")]
+        public async Task<ActionResult<IEnumerable<BANCO>>> GetBancos()
         {
-            var monedaTableGet = await _bancoTable.bancos.ToListAsync();
-            return Ok(monedaTableGet);
+            return await _context.Bancos.FromSqlRaw("SELECT * FROM BANCO ORDER BY ID_BANCO DESC").ToListAsync();
         }
 
-        [HttpPost]
-        public async Task<IActionResult> PostAsync(BANCO log)
+        // GET: api/Banco/5
+        [HttpGet("GetBanco/{id}")]
+        public async Task<ActionResult<BANCO>> GetBanco(int id)
         {
-            var userLoginPost = await _bancoTable.bancos.AddAsync(log);
-            await _bancoTable.SaveChangesAsync();
-            return Ok("El registro se inserto correctamente!");
-        }
+            var banco = await _context.Bancos.FromSqlRaw($"SELECT * FROM BANCO WHERE ID_BANCO = {id}").FirstOrDefaultAsync();
 
-
-
-        [HttpPut]
-        public async Task<IActionResult> PutAsync(BANCO log)
-        {
-            _bancoTable.bancos.Update(log);
-            await _bancoTable.SaveChangesAsync();
-            return NoContent();
-        }
-
-        [Route("{USERID}")]
-        [HttpDelete]
-        public async Task<IActionResult> DeleteAsync(int USERID)
-        {
-            var userLoginDelete = await _bancoTable.bancos.FindAsync(USERID);
-            if (userLoginDelete == null)
+            if (banco == null)
             {
                 return NotFound();
             }
 
-            _bancoTable.bancos.Remove(userLoginDelete);
-            await _bancoTable.SaveChangesAsync();
-            return Ok("El registro se elimino de manera correcta");
+            return banco;
         }
 
-        [Route("getuserbyid/{userid}")]
-        [HttpGet]
-        public async Task<IActionResult> getByUSERID(int userid)
+        // POST: api/Banco
+        [HttpPost("CreateBanco")]
+        public async Task<ActionResult<BANCO>> PostBanco(BANCO banco)
         {
-            var usergetByUSERID = await _bancoTable.bancos.FindAsync(userid);
-            return Ok(usergetByUSERID);
+            DateTime fechaDeCreacion;
+            bool isValid = DateTime.TryParseExact(banco.FECHA_DE_CREACION, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out fechaDeCreacion);
+
+            if (!isValid)
+            {
+                return BadRequest("Formato de fecha inválido. Debe ser 'yyyy/MM/dd'.");
+            }
+
+            string consulta = "INSERT INTO BANCO (NOMBRE_BANCO, FECHA_DE_CREACION, ID_USUARIO) VALUES (:nombreBanco, TO_DATE(:fechaDeCreacion, 'YYYY-MM-DD'), :idUsuario)";
+            var parametros = new OracleParameter[]
+            {
+                new OracleParameter("nombreBanco", banco.NOMBRE_BANCO),
+                new OracleParameter("fechaDeCreacion", fechaDeCreacion.ToString("yyyy-MM-dd")),
+                new OracleParameter("idUsuario", banco.ID_USUARIO)
+            };
+            await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+
+            return CreatedAtAction("GetBanco", new { id = banco.ID_BANCO }, new { message = "Banco creado con éxito", banco });
+        }
+
+        // PUT: api/Banco/5
+        [HttpPut("UpdateBanco/{id}")]
+        public async Task<IActionResult> PutBanco(int id, BANCO banco)
+        {
+            if (id != banco.ID_BANCO)
+            {
+                return BadRequest();
+            }
+
+            string consulta = "UPDATE BANCO SET NOMBRE_BANCO = :nombreBanco WHERE ID_BANCO = :id";
+            var parametros = new OracleParameter[]
+            {
+                new OracleParameter("nombreBanco", banco.NOMBRE_BANCO),
+                new OracleParameter("id", id)
+            };
+            await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+
+            return Ok(new { message = "Banco actualizado con éxito" });
+        }
+
+        // DELETE: api/Banco/5
+        [HttpDelete("DeleteBanco/{id}")]
+        public async Task<IActionResult> DeleteBanco(int id)
+        {
+            await _context.Database.ExecuteSqlRawAsync($"DELETE FROM BANCO WHERE ID_BANCO = {id}");
+
+            return Ok(new { message = "Banco eliminado con éxito" });
         }
     }
 }

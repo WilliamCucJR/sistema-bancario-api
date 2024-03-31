@@ -12,6 +12,6 @@ namespace sistema_bancario_api.Data
             base.OnConfiguring(optionsBuilder);
         }
 
-        public DbSet<BANCO> bancos { get; set; }
+        public DbSet<BANCO> Bancos { get; set; }
     }
 }
