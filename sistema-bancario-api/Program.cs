@@ -54,6 +54,11 @@ builder.Services.AddDbContext<BancoTable>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
 });
 
+builder.Services.AddDbContext<MovimientosTable>(options =>
+{
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
+});
+
 
 var app = builder.Build();
 
