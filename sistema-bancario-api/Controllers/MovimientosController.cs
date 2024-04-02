@@ -60,14 +60,14 @@ namespace sistema_bancario_api.Controllers
             string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
             var parametros = new OracleParameter[]
             {
-        new OracleParameter("idCuenta", movimiento.ID_CUENTA),
-        new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
-        new OracleParameter("descripcion", movimiento.DESCRIPCION),
-        new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
-        new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
-        new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
-        new OracleParameter("monto", movimiento.MONTO),
-        new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE)
+                new OracleParameter("idCuenta", movimiento.ID_CUENTA),
+                new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
+                new OracleParameter("descripcion", movimiento.DESCRIPCION),
+                new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
+                new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
+                new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
+                new OracleParameter("monto", movimiento.MONTO),
+                new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE)
             };
             await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
 
