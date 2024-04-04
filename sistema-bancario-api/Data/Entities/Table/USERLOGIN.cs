@@ -41,5 +41,7 @@ namespace sistema_bancario_api.Data.Entities.Table
         public string? PUESTO {  get; set; }
         public string? FECHA_INGRESO { get; set; }
 
+        public string? ESTATUS_USUARIO { get; set; }
+
     }
 }
