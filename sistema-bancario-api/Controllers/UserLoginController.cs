@@ -114,20 +114,26 @@ public class UserLoginController : ControllerBase
                 new OracleParameter("celular", log.CELULAR),
                 new OracleParameter("zona", log.ZONA),
                 new OracleParameter("fechaingreso", log.FECHA_INGRESO),
-                new OracleParameter("estatususuario", log.ESTATUS_USUARIO)
+                new OracleParameter("estatususuario", log.ESTATUS_USUARIO),
+                new OracleParameter("id_departamento", log.ID_DEPARTAMENTO),
+                new OracleParameter("id_municipio", log.ID_MUNICIPIO),
+                new OracleParameter("nivel_academico", log.NIVEL_ACADEMICO),
+                new OracleParameter("departamento_sistema", log.DEPARTAMENTO_SISTEMA),
+                new OracleParameter("puesto", log.PUESTO),
+                new OracleParameter("id", id)
 
         };
         await _userLoginTable.Database.ExecuteSqlRawAsync(consulta, parametros);
 
-        return Ok(new { message = "Tipo de documento actualizado con éxito" });
+        return Ok(new { message = "Usuario actualizado con éxito" });
     }
 
     [HttpDelete("DeleteUserLogin/{id}")]
-    public async Task<IActionResult> DeleteAsync(int USERID)
+    public async Task<IActionResult> DeleteAsync(int id)
     {
-        await _userLoginTable.Database.ExecuteSqlRawAsync($"DELETE FROM USERLOGIN WHERE USERID = {USERID}");
+        await _userLoginTable.Database.ExecuteSqlRawAsync($"DELETE FROM USERLOGIN WHERE USERID = {id}");
 
-        return Ok(new { message = "Tipo de documento eliminado con éxito" });
+        return Ok(new { message = "Usuario eliminado con éxito" });
     }
 
 
