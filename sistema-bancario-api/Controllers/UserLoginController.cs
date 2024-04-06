@@ -36,6 +36,19 @@ public class UserLoginController : ControllerBase
         return userLogin;
     }
 
+    [HttpGet("GetUserLoginAuth")]
+    public async Task<int> CheckUserLogin(string username, string password)
+    {
+        var userLogin = await _userLoginTable.Logins.FromSqlRaw($"SELECT * FROM USERLOGIN WHERE NICKNAME = '{username}' AND PASSWORD = '{password}'").FirstOrDefaultAsync();
+
+        if (userLogin == null)
+        {
+            return 0; // Usuario no encontrado
+        }
+
+        return 1; // Usuario encontrado
+    }
+
     [HttpPost("CreateUserLogin")]
     public async Task<ActionResult<USERLOGIN>> PostUserLogin(USERLOGIN log)
     {
