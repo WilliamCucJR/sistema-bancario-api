@@ -12,6 +12,6 @@ namespace sistema_bancario_api.Data
             base.OnConfiguring(optionsBuilder);
         }
 
-        public DbSet<CUENTA_BANCARIA> Moves { get; set; }
+        public DbSet<CUENTA_BANCARIA> Bancs { get; set; }
     }
 }

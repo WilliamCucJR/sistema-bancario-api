@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+﻿    using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
@@ -39,7 +39,6 @@ namespace sistema_bancario_api.Controllers
             return movimiento;
         }
 
-        // POST: api/Movimientos
         // POST: api/Movimientos
         [HttpPost("CreateMovimiento")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS movimiento)
