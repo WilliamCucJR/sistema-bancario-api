@@ -40,7 +40,7 @@ public class UserLoginController : ControllerBase
     public async Task<int> CheckUserLogin(string username, string password)
     {
         var userLogin = await _userLoginTable.Logins.FromSqlRaw($"SELECT * FROM USERLOGIN WHERE NICKNAME = '{username}' AND PASSWORD = '{password}'").FirstOrDefaultAsync();
-
+        Console.WriteLine(userLogin);
         if (userLogin == null)
         {
             return 0; // Usuario no encontrado
