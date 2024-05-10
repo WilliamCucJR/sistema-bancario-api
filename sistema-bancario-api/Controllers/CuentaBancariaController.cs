@@ -39,7 +39,7 @@ namespace sistema_bancario_api.Controllers
         [HttpPost("CreateCuentaBancaria")]
         public async Task<ActionResult<CUENTA_BANCARIA>> PostCuentaBancaria(CUENTA_BANCARIA cuenta)
         {
-            string consulta = "INSERT INTO MONEDA (BANCO_ID, NO_DE_CUENTA, TIPO_DE_CUENTA_ID, NOMBRE_CUENTAHABIENTE, DPI, NIT, TELEFONO, CORREO," +
+            string consulta = "INSERT INTO CUENTA_BANCARIA (BANCO_ID, NO_DE_CUENTA, TIPO_DE_CUENTA_ID, NOMBRE_CUENTAHABIENTE, DPI, NIT, TELEFONO, CORREO," +
                 "DIRECCION, ZONA, DEPARTAMENTO_ID, MUNICIPIO_ID, MONEDA_ID, SALDO) VALUES (:bancoid, :nodecuenta, :tipodecuentaid, :nombrecuentahabiente, " +
                 ":dpi, :nit, :telefono, :correo, :direccion, :zona, :departamentoid, :municipioid, :monedaid, :saldo)";
             var parametros = new OracleParameter[]
@@ -72,7 +72,7 @@ namespace sistema_bancario_api.Controllers
                 return BadRequest();
             }
 
-            string consulta = "UPDATE MONEDA SET BANCO_ID = :bancoid, NO_DE_CUENTA = :nodecuenta, TIPO_DE_CUENTA_ID = :tipodecuentaid, NOMBRE_CUENTAHABIENTE = :nombrecuentahabiente, DPI = :dpi, " +
+            string consulta = "UPDATE CUENTA_BANCARIA SET BANCO_ID = :bancoid, NO_DE_CUENTA = :nodecuenta, TIPO_DE_CUENTA_ID = :tipodecuentaid, NOMBRE_CUENTAHABIENTE = :nombrecuentahabiente, DPI = :dpi, " +
                 "NIT = :nit, TELEFONO = :telefono, CORREO = :correo, DIRECCION = :direccion, ZONA = :zona, DEPARTAMENTO_ID = :departamentoid, " +
                 "MUNICIPIO_ID = :municipioid, MONEDA_ID = :monedaid, SALDO = :saldo WHERE ID_CUENTA = :id";
             var parametros = new OracleParameter[]
