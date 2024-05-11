@@ -18,6 +18,13 @@ namespace sistema_bancario_api.Controllers
             this.municipioTable1 = municipioTable;
         }
 
+        // GET: api/Municipios
+        [HttpGet("GetAllMunicipios")]
+        public async Task<ActionResult<IEnumerable<Municipio>>> GetDepartamentos()
+        {
+            return await municipioTable1.Municipios.FromSqlRaw("SELECT * FROM Municipio ORDER BY NOMBRE_DEL_MUNICIPIO ASC").ToListAsync();
+        }
+
         // GET: api/Municipio/GetMunicipiosByDepartamento/5
         [HttpGet("GetMunicipiosByDepartamento/{departamentoId}")]
         public async Task<ActionResult<IEnumerable<Municipio>>> GetMunicipiosByDepartamento(int departamentoId)

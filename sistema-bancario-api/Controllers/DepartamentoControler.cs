@@ -20,7 +20,7 @@ namespace sistema_bancario_api.Controllers
         [HttpGet("GetAllDepartamentos")]
         public async Task<ActionResult<IEnumerable<DEPARTAMENTO>>> GetDepartamentos()
         {
-            return await deptotable.Deptos.FromSqlRaw("SELECT * FROM DEPARTAMENTO ORDER BY ID").ToListAsync();
+            return await deptotable.Deptos.FromSqlRaw("SELECT * FROM DEPARTAMENTO ORDER BY NOMBRE_DEL_DEPARTAMENTO ASC").ToListAsync();
         }
 
         // GET: api/Movimientos/5
