@@ -37,16 +37,9 @@ namespace sistema_bancario_api.Controllers
         }
 
         [HttpGet("GetCuentaBancariaByBancoID/{idbanco}")]
-        public async Task<ActionResult<CUENTA_BANCARIA>> GetCuentaBancariaByBancoID(int idbanco)
+        public async Task<ActionResult<IEnumerable<CUENTA_BANCARIA>>> GetCuentaBancariaByBancoID(int idbanco)
         {
-            var ctabancsid = await _ctaBancaria.Bancs.FromSqlRaw($"SELECT * FROM CUENTA_BANCARIA WHERE BANCO_ID = {idbanco}").FirstOrDefaultAsync();
-
-            if (ctabancsid == null)
-            {
-                return NotFound();
-            }
-
-            return ctabancsid;
+            return await _ctaBancaria.Bancs.FromSqlRaw($"SELECT * FROM CUENTA_BANCARIA WHERE BANCO_ID = {idbanco}").ToListAsync();
         }
 
         [HttpPost("CreateCuentaBancaria")]
