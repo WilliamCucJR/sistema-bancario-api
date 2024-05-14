@@ -115,5 +115,38 @@ namespace sistema_bancario_api.Controllers
 
             return Ok(new { message = "Movimiento eliminado con éxito" });
         }
+        // GET: api/Movimientos/GetNotasDebitoPorBanco/{idBanco}
+        [HttpGet("GetNotasDebitoPorBanco/{idBanco}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasDebitoPorBanco(int idBanco)
+        {
+            var notasDebito = await _context.Moves
+                .FromSqlRaw(@"
+            SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
+                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, -1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+            FROM MOVIMIENTOS a
+            INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
+            INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
+            WHERE a.MONTO < 0 AND c.ID_BANCO = {0}", idBanco)
+                .ToListAsync();
+
+            return notasDebito;
+        }
+
+        // GET: api/Movimientos/GetNotasCreditoPorBanco/{idBanco}
+        [HttpGet("GetNotasCreditoPorBanco/{idBanco}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasCreditoPorBanco(int idBanco)
+        {
+            var notasCredito = await _context.Moves
+                .FromSqlRaw(@"
+            SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
+                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+            FROM MOVIMIENTOS a
+            INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
+            INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
+            WHERE a.MONTO > 0 AND c.ID_BANCO = {0}", idBanco)
+                .ToListAsync();
+
+            return notasCredito;
+        }
     }
 }
