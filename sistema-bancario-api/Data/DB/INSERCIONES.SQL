@@ -1,3 +1,4 @@
+-- INSERCIONES PARA LAS TABLAS DE DEPARTAMENTO Y MUNICIPIO 
 -- Inserción de departamentos
 INSERT ALL 
 INTO Departamento (ID, Nombre_del_departamento) VALUES (1, 'Alta Verapaz')
@@ -94,7 +95,7 @@ INTO Municipio (ID, Nombre_del_Municipio, ID_Departamento) VALUES (51, 'San Jaci
 INTO Municipio (ID, Nombre_del_Municipio, ID_Departamento) VALUES (52, 'San José la Arada', 4)
 SELECT * FROM dual;
 
--- Municipios del departamento de El Progreso
+-- Municipios del departamento de El Progreso 
 INSERT ALL 
 INTO Municipio (ID, Nombre_del_Municipio, ID_Departamento) VALUES (54, 'El Jícaro', 5)
 INTO Municipio (ID, Nombre_del_Municipio, ID_Departamento) VALUES (55, 'Morazán', 5)
