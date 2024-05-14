@@ -39,6 +39,26 @@ namespace sistema_bancario_api.Controllers
             return movimiento;
         }
 
+        [HttpGet("GetMovimiento/{idCuenta}/{idBanco}/{mes}/{anio}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetMovimiento(int idCuenta, int idBanco, int mes, int anio)
+        {
+            var movimientos = await _context.Moves
+                .FromSqlRaw($"  SELECT  a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA, " +
+                $"                      a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, a.MONTO, a.DOCUMENTO_CONTABLE" +
+                $"              FROM MOVIMIENTOS a" +
+                $"              INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA" +
+                $"              WHERE b.ID_CUENTA = {idCuenta} AND b.BANCO_ID = {idBanco}" +
+                $"              AND (EXTRACT(YEAR FROM FECHA) = {anio} AND EXTRACT(MONTH FROM FECHA) = {mes})")
+                .ToListAsync();
+
+            if (movimientos == null)
+            {
+                return NotFound();
+            }
+
+            return movimientos;
+        }
+
         // POST: api/Movimientos
         [HttpPost("CreateMovimiento")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS movimiento)
@@ -124,11 +144,12 @@ namespace sistema_bancario_api.Controllers
             var notasDebito = await _context.Moves
                 .FromSqlRaw(@"
             SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
-                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, -1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
             FROM MOVIMIENTOS a
             INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
             INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
-            WHERE a.MONTO < 0 AND c.ID_BANCO = {0}", idBanco)
+            INNER JOIN TIPO_DOCUMENTO d ON d.ID = a.ID_DOCUMENTO
+            WHERE d.OPERACION < 0 AND c.ID_BANCO = {0} ORDER BY a.ID_MOVIMIENTO DESC", idBanco)
                 .ToListAsync();
 
             return notasDebito;
@@ -141,11 +162,12 @@ namespace sistema_bancario_api.Controllers
             var notasCredito = await _context.Moves
                 .FromSqlRaw(@"
             SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
-                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+                    a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
             FROM MOVIMIENTOS a
             INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
             INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
-            WHERE a.MONTO > 0 AND c.ID_BANCO = {0}", idBanco)
+            INNER JOIN TIPO_DOCUMENTO d ON d.ID = a.ID_DOCUMENTO
+            WHERE d.OPERACION > 0 AND c.ID_BANCO = {0} ORDER BY a.ID_MOVIMIENTO DESC", idBanco)
                 .ToListAsync();
 
             return notasCredito;
