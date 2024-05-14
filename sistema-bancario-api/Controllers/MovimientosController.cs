@@ -1,4 +1,4 @@
-﻿    using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
@@ -56,11 +56,12 @@ namespace sistema_bancario_api.Controllers
                 return BadRequest("Formato de fecha inválido. Debe ser 'yyyy/MM/dd HH:mm:ss'.");
             }
 
-            string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
+            string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, ID_DOCUMENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :idDocumento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
             var parametros = new OracleParameter[]
             {
                 new OracleParameter("idCuenta", movimiento.ID_CUENTA),
                 new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
+                new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
                 new OracleParameter("descripcion", movimiento.DESCRIPCION),
                 new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
                 new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
@@ -115,6 +116,7 @@ namespace sistema_bancario_api.Controllers
 
             return Ok(new { message = "Movimiento eliminado con éxito" });
         }
+
         // GET: api/Movimientos/GetNotasDebitoPorBanco/{idBanco}
         [HttpGet("GetNotasDebitoPorBanco/{idBanco}")]
         public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasDebitoPorBanco(int idBanco)
