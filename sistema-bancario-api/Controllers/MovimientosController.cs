@@ -12,10 +12,12 @@ namespace sistema_bancario_api.Controllers
     public class MovimientosController : ControllerBase
     {
         private readonly MovimientosTable _context;
+        private readonly CuentaBancariaTable _contextCB;
 
-        public MovimientosController(MovimientosTable context)
+        public MovimientosController(MovimientosTable context, CuentaBancariaTable contextCB)
         {
             _context = context;
+            _contextCB = contextCB;
         }
 
         // GET: api/Movimientos
@@ -61,7 +63,7 @@ namespace sistema_bancario_api.Controllers
 
         // POST: api/Movimientos
         [HttpPost("CreateMovimiento")]
-        public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS movimiento)
+        public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS? movimiento)
         {
             if (movimiento.FECHA == null)
             {
@@ -77,6 +79,7 @@ namespace sistema_bancario_api.Controllers
             }
 
             string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, ID_DOCUMENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :idDocumento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
+            string consulta2 = "UPDATE CUENTA_BANCARIA SET SALDO = :saldo WHERE ID_CUENTA = :idCuenta";
             var parametros = new OracleParameter[]
             {
                 new OracleParameter("idCuenta", movimiento.ID_CUENTA),
@@ -84,12 +87,20 @@ namespace sistema_bancario_api.Controllers
                 new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
                 new OracleParameter("descripcion", movimiento.DESCRIPCION),
                 new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
+                //new OracleParameter("fecha", movimiento.FECHA),
                 new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
                 new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
                 new OracleParameter("monto", movimiento.MONTO),
-                new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE)
+                new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE),
+                new OracleParameter("saldo", movimiento.MONTO)
+            };
+            var parametros2 = new OracleParameter[]
+            {
+                new OracleParameter("idCuenta", movimiento.ID_CUENTA),
+                new OracleParameter("saldo", movimiento.MONTO)
             };
             await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+            await _contextCB.Database.ExecuteSqlRawAsync(consulta2, parametros2);
 
             return CreatedAtAction("GetMovimiento", new { id = movimiento.ID_CUENTA }, new { message = "Movimiento creado con éxito", movimiento });
         }
