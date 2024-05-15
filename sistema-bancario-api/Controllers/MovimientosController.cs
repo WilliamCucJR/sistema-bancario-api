@@ -1,4 +1,4 @@
-﻿    using System.Globalization;
+﻿using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
@@ -39,6 +39,26 @@ namespace sistema_bancario_api.Controllers
             return movimiento;
         }
 
+        [HttpGet("GetMovimiento/{idCuenta}/{idBanco}/{mes}/{anio}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetMovimiento(int idCuenta, int idBanco, int mes, int anio)
+        {
+            var movimientos = await _context.Moves
+                .FromSqlRaw($"  SELECT  a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA, " +
+                $"                      a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, a.MONTO, a.DOCUMENTO_CONTABLE" +
+                $"              FROM MOVIMIENTOS a" +
+                $"              INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA" +
+                $"              WHERE b.ID_CUENTA = {idCuenta} AND b.BANCO_ID = {idBanco}" +
+                $"              AND (EXTRACT(YEAR FROM FECHA) = {anio} AND EXTRACT(MONTH FROM FECHA) = {mes})")
+                .ToListAsync();
+
+            if (movimientos == null)
+            {
+                return NotFound();
+            }
+
+            return movimientos;
+        }
+
         // POST: api/Movimientos
         [HttpPost("CreateMovimiento")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS movimiento)
@@ -56,11 +76,12 @@ namespace sistema_bancario_api.Controllers
                 return BadRequest("Formato de fecha inválido. Debe ser 'yyyy/MM/dd HH:mm:ss'.");
             }
 
-            string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
+            string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, ID_DOCUMENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :idDocumento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
             var parametros = new OracleParameter[]
             {
                 new OracleParameter("idCuenta", movimiento.ID_CUENTA),
                 new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
+                new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
                 new OracleParameter("descripcion", movimiento.DESCRIPCION),
                 new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
                 new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
@@ -114,6 +135,42 @@ namespace sistema_bancario_api.Controllers
             await _context.Database.ExecuteSqlRawAsync($"DELETE FROM MOVIMIENTOS WHERE ID_CUENTA = {id}");
 
             return Ok(new { message = "Movimiento eliminado con éxito" });
+        }
+
+        // GET: api/Movimientos/GetNotasDebitoPorBanco/{idBanco}
+        [HttpGet("GetNotasDebitoPorBanco/{idBanco}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasDebitoPorBanco(int idBanco)
+        {
+            var notasDebito = await _context.Moves
+                .FromSqlRaw(@"
+            SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
+                   a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+            FROM MOVIMIENTOS a
+            INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
+            INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
+            INNER JOIN TIPO_DOCUMENTO d ON d.ID = a.ID_DOCUMENTO
+            WHERE d.OPERACION < 0 AND c.ID_BANCO = {0} ORDER BY a.ID_MOVIMIENTO DESC", idBanco)
+                .ToListAsync();
+
+            return notasDebito;
+        }
+
+        // GET: api/Movimientos/GetNotasCreditoPorBanco/{idBanco}
+        [HttpGet("GetNotasCreditoPorBanco/{idBanco}")]
+        public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasCreditoPorBanco(int idBanco)
+        {
+            var notasCredito = await _context.Moves
+                .FromSqlRaw(@"
+            SELECT a.ID_MOVIMIENTO, a.ID_CUENTA, a.ID_DOCUMENTO, a.DESCRIPCION, a.FECHA,
+                    a.NO_DOCUMENTO, a.TIPO_DOCUMENTO_ID, 1 * a.MONTO AS MONTO, a.DOCUMENTO_CONTABLE
+            FROM MOVIMIENTOS a
+            INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
+            INNER JOIN BANCO c ON c.ID_BANCO = b.BANCO_ID
+            INNER JOIN TIPO_DOCUMENTO d ON d.ID = a.ID_DOCUMENTO
+            WHERE d.OPERACION > 0 AND c.ID_BANCO = {0} ORDER BY a.ID_MOVIMIENTO DESC", idBanco)
+                .ToListAsync();
+
+            return notasCredito;
         }
     }
 }
