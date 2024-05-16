@@ -24,6 +24,18 @@ namespace sistema_bancario_api.Controllers
             return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
         }
 
+        [HttpGet("GetAllTipoDocumentosDebito")]
+        public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentosDebito()
+        {
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
+        }
+
+        [HttpGet("GetAllTipoDocumentosCredito")]
+        public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentosCredito()
+        {
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
+        }
+
         // GET: api/TipoDocumento/5
         [HttpGet("GetTipoDocumento/{id}")]
         public async Task<ActionResult<TIPO_DOCUMENTO>> GetTipoDocumento(int id)
