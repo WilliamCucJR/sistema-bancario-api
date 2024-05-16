@@ -36,6 +36,19 @@ namespace sistema_bancario_api.Controllers
             return ctabancs;
         }
 
+        [HttpGet("GetCuentaBancariaByNoCuenta/{noCuenta}")]
+        public async Task<ActionResult<CUENTA_BANCARIA>> GetCuentaBancariaByNoCuenta(string noCuenta)
+        {
+            var ctabancs = await _ctaBancaria.Bancs.FromSqlRaw($"SELECT * FROM CUENTA_BANCARIA WHERE NO_DE_CUENTA = {noCuenta}").FirstOrDefaultAsync();
+
+            if (ctabancs == null)
+            {
+                return NotFound();
+            }
+
+            return ctabancs;
+        }
+
         [HttpGet("GetCuentaBancariaByBancoID/{idbanco}")]
         public async Task<ActionResult<IEnumerable<CUENTA_BANCARIA>>> GetCuentaBancariaByBancoID(int idbanco)
         {
