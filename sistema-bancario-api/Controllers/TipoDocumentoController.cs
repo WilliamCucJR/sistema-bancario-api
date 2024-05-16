@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
 using sistema_bancario_api.Data;
@@ -21,7 +22,7 @@ namespace sistema_bancario_api.Controllers
         [HttpGet("GetAllTipoDocumentos")]
         public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentos()
         {
-            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO WHERE OPERACION = 1 ORDER BY ID DESC").ToListAsync();
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
         }
 
         [HttpGet("GetAllTipoDocumentosDebito")]
@@ -33,7 +34,7 @@ namespace sistema_bancario_api.Controllers
         [HttpGet("GetAllTipoDocumentosCredito")]
         public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentosCredito()
         {
-            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO WHERE OPERACION = 1 ORDER BY ID DESC").ToListAsync();
         }
 
         // GET: api/TipoDocumento/5
@@ -41,6 +42,22 @@ namespace sistema_bancario_api.Controllers
         public async Task<ActionResult<TIPO_DOCUMENTO>> GetTipoDocumento(int id)
         {
             var tipoDocumento = await _context.TipoDocs.FromSqlRaw($"SELECT * FROM TIPO_DOCUMENTO WHERE ID = {id}").FirstOrDefaultAsync();
+
+            if (tipoDocumento == null)
+            {
+                return NotFound();
+            }
+
+            return tipoDocumento;
+        }
+
+        [HttpGet("GetTipoDocumentoByNombre/{nombreDocumento}")]
+        public async Task<ActionResult<TIPO_DOCUMENTO>> GetTipoDocumentoByNombre(string nombreDocumento)
+        {
+            var tipoDocumento = await _context.TipoDocs
+                .FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO WHERE NOMBRE_DOCUMENTO = :nombre",
+                    new OracleParameter("nombre", OracleDbType.Varchar2, nombreDocumento, ParameterDirection.Input))
+                .FirstOrDefaultAsync();
 
             if (tipoDocumento == null)
             {

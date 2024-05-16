@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Data;
+using System.Globalization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Oracle.ManagedDataAccess.Client;
@@ -101,31 +102,36 @@ namespace sistema_bancario_api.Controllers
         [HttpPost("CreateMovimientoStoreProcedure")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimientoStoreProcedure(MOVIMIENTOS movimiento)
         {
-
-            string consulta = "DECLARE " +
-                "msg VARCHAR2(200);" +
-                "BEGIN " +
-                "updateSaldo (:idMovimiento, :idCuenta, :idDocumento, :descripcion, :fecha, :noDocumento, :tipoDocumentoId, :monto, :documentoContable, msg);" +
-                "DBMS_OUTPUT.put_line(msg);" +
-                "END;";
+            string consulta = @"
+        DECLARE 
+            msg VARCHAR2(200);
+        BEGIN 
+            updateSaldo(:idMovimiento, :idCuenta, :idDocumento, :descripcion, :fecha, :noDocumento, :tipoDocumentoId, :monto, :documentoContable, msg);
+            :mensaje := msg;
+        END;";
 
             var parametros = new OracleParameter[]
             {
-                new OracleParameter("idCuenta", movimiento.ID_CUENTA),
-                new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
-                new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
-                new OracleParameter("descripcion", movimiento.DESCRIPCION),
-                new OracleParameter("fecha", "2024-05-15"),
-                new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
-                new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
-                new OracleParameter("monto", movimiento.MONTO),
-                new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE),
+        new OracleParameter("idMovimiento", OracleDbType.Int32) { Value = movimiento.ID_MOVIMIENTO },
+        new OracleParameter("idCuenta", OracleDbType.Int32) { Value = movimiento.ID_CUENTA },
+        new OracleParameter("idDocumento", OracleDbType.Int32) { Value = movimiento.ID_DOCUMENTO },
+        new OracleParameter("descripcion", OracleDbType.Varchar2) { Value = movimiento.DESCRIPCION },
+        new OracleParameter("fecha", OracleDbType.Varchar2) { Value = "2024-05-15" },
+        new OracleParameter("noDocumento", OracleDbType.Varchar2) { Value = movimiento.NO_DOCUMENTO },
+        new OracleParameter("tipoDocumentoId", OracleDbType.Int32) { Value = movimiento.TIPO_DOCUMENTO_ID },
+        new OracleParameter("monto", OracleDbType.Decimal) { Value = movimiento.MONTO },
+        new OracleParameter("documentoContable", OracleDbType.Varchar2) { Value = movimiento.DOCUMENTO_CONTABLE },
+        new OracleParameter("mensaje", OracleDbType.Varchar2, 200) { Direction = ParameterDirection.Output }
             };
 
             await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
 
-            return Ok(new { message = "Movimiento creado con éxito"});
+            string mensaje = parametros[9].Value?.ToString() ?? "No se recibió ningún mensaje"; // Captura el valor del parámetro de salida y maneja el posible valor nulo
+
+            return Ok(new { message = mensaje });
         }
+
+
 
         // PUT: api/Movimientos/5
         [HttpPut("UpdateMovimiento/{id}")]

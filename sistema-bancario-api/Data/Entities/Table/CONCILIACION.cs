@@ -18,5 +18,6 @@ namespace sistema_bancario_api.Data.Entities.Table
         public string? DOCUMENTO_CONTABLE { get; set; }
         public string? NO_DE_CUENTA { get; set; }
         public string? OPERACION { get; set; }
+        public string? NOMBRE_BANCO { get; set; }
     }
 }
