@@ -21,13 +21,13 @@ namespace sistema_bancario_api.Controllers
         [HttpGet("GetAllTipoDocumentos")]
         public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentos()
         {
-            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO WHERE OPERACION = 1 ORDER BY ID DESC").ToListAsync();
         }
 
         [HttpGet("GetAllTipoDocumentosDebito")]
         public async Task<ActionResult<IEnumerable<TIPO_DOCUMENTO>>> GetTipoDocumentosDebito()
         {
-            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO ORDER BY ID DESC").ToListAsync();
+            return await _context.TipoDocs.FromSqlRaw("SELECT * FROM TIPO_DOCUMENTO WHERE OPERACION = -1 ORDER BY ID DESC").ToListAsync();
         }
 
         [HttpGet("GetAllTipoDocumentosCredito")]
