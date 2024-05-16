@@ -97,6 +97,36 @@ namespace sistema_bancario_api.Controllers
             return CreatedAtAction("GetMovimiento", new { id = movimiento.ID_CUENTA }, new { message = "Movimiento creado con éxito", movimiento });
         }
 
+        // POST: api/Movimientos
+        [HttpPost("CreateMovimientoStoreProcedure")]
+        public async Task<ActionResult<MOVIMIENTOS>> PostMovimientoStoreProcedure(MOVIMIENTOS movimiento)
+        {
+
+            string consulta = "DECLARE " +
+                "msg VARCHAR2(200);" +
+                "BEGIN " +
+                "updateSaldo (:idMovimiento, :idCuenta, :idDocumento, :descripcion, :fecha, :noDocumento, :tipoDocumentoId, :monto, :documentoContable, msg);" +
+                "DBMS_OUTPUT.put_line(msg);" +
+                "END;";
+
+            var parametros = new OracleParameter[]
+            {
+                new OracleParameter("idCuenta", movimiento.ID_CUENTA),
+                new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
+                new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
+                new OracleParameter("descripcion", movimiento.DESCRIPCION),
+                new OracleParameter("fecha", "2024-05-15"),
+                new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
+                new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
+                new OracleParameter("monto", movimiento.MONTO),
+                new OracleParameter("documentoContable", movimiento.DOCUMENTO_CONTABLE),
+            };
+
+            await _context.Database.ExecuteSqlRawAsync(consulta, parametros);
+
+            return Ok(new { message = "Movimiento creado con éxito"});
+        }
+
         // PUT: api/Movimientos/5
         [HttpPut("UpdateMovimiento/{id}")]
         public async Task<IActionResult> PutMovimiento(int id, MOVIMIENTOS movimiento)
