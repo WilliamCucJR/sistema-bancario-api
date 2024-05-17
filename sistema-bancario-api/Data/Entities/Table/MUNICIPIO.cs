@@ -10,7 +10,7 @@ namespace sistema_bancario_api.Data.Entities.Table
         public int ID { get; set; }
 
         [Column("Nombre_del_Municipio")]
-        public string Nombre { get; set; }
+        public string? Nombre { get; set; }
 
         [Column("ID_Departamento")]
         public int DepartamentoId { get; set; }

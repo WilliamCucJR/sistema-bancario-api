@@ -64,18 +64,6 @@ namespace sistema_bancario_api.Controllers
         [HttpPost("CreateMovimiento")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimiento(MOVIMIENTOS movimiento)
         {
-            if (movimiento.FECHA == null)
-            {
-                return BadRequest("El campo FECHA es requerido.");
-            }
-
-            DateTime fecha;
-            bool isValid = DateTime.TryParseExact(movimiento.FECHA.Value.ToString("yyyy/MM/dd HH:mm:ss"), "yyyy/MM/dd HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out fecha);
-
-            if (!isValid)
-            {
-                return BadRequest("Formato de fecha inválido. Debe ser 'yyyy/MM/dd HH:mm:ss'.");
-            }
 
             string consulta = "INSERT INTO MOVIMIENTOS (ID_CUENTA, ID_MOVIMIENTO, ID_DOCUMENTO, DESCRIPCION, FECHA, NO_DOCUMENTO, TIPO_DOCUMENTO_ID, MONTO, DOCUMENTO_CONTABLE) VALUES (:idCuenta, :idMovimiento, :idDocumento, :descripcion, TO_TIMESTAMP(:fecha, 'YYYY-MM-DD HH24:MI:SS'), :noDocumento, :tipoDocumentoId, :monto, :documentoContable)";
             
@@ -85,7 +73,7 @@ namespace sistema_bancario_api.Controllers
                 new OracleParameter("idMovimiento", movimiento.ID_MOVIMIENTO),
                 new OracleParameter("idDocumento", movimiento.ID_DOCUMENTO),
                 new OracleParameter("descripcion", movimiento.DESCRIPCION),
-                new OracleParameter("fecha", fecha.ToString("yyyy-MM-dd HH:mm:ss")),
+                new OracleParameter("fecha", movimiento.FECHA),
                 new OracleParameter("noDocumento", movimiento.NO_DOCUMENTO),
                 new OracleParameter("tipoDocumentoId", movimiento.TIPO_DOCUMENTO_ID),
                 new OracleParameter("monto", movimiento.MONTO),
@@ -102,6 +90,7 @@ namespace sistema_bancario_api.Controllers
         [HttpPost("CreateMovimientoStoreProcedure")]
         public async Task<ActionResult<MOVIMIENTOS>> PostMovimientoStoreProcedure(MOVIMIENTOS movimiento)
         {
+
             string consulta = @"
         DECLARE 
             msg VARCHAR2(200);
@@ -116,7 +105,7 @@ namespace sistema_bancario_api.Controllers
         new OracleParameter("idCuenta", OracleDbType.Int32) { Value = movimiento.ID_CUENTA },
         new OracleParameter("idDocumento", OracleDbType.Int32) { Value = movimiento.ID_DOCUMENTO },
         new OracleParameter("descripcion", OracleDbType.Varchar2) { Value = movimiento.DESCRIPCION },
-        new OracleParameter("fecha", OracleDbType.Varchar2) { Value = "2024-05-15" },
+        new OracleParameter("fecha", OracleDbType.Varchar2) { Value = movimiento.FECHA },
         new OracleParameter("noDocumento", OracleDbType.Varchar2) { Value = movimiento.NO_DOCUMENTO },
         new OracleParameter("tipoDocumentoId", OracleDbType.Int32) { Value = movimiento.TIPO_DOCUMENTO_ID },
         new OracleParameter("monto", OracleDbType.Decimal) { Value = movimiento.MONTO },
@@ -184,6 +173,29 @@ namespace sistema_bancario_api.Controllers
 
             return Ok(new { message = "Movimiento eliminado con éxito" });
         }
+
+        // DELETE: api/Movimientos/5
+        [HttpDelete("DeleteMovimientoDocumentoProcedure/{no_documento}")]
+        public async Task<IActionResult> DeleteMovimientoDocumentoProcedure(string no_documento)
+        {
+            try
+            {
+                var parameter = new OracleParameter("p_no_documento", OracleDbType.Varchar2);
+                parameter.Value = no_documento;
+
+                // Llamar al procedimiento almacenado
+                await _context.Database.ExecuteSqlRawAsync("BEGIN eliminarMovimiento(:p_no_documento); END;", parameter);
+
+                // Devolver el mensaje de éxito como respuesta
+                return Ok(new { message = "Movimiento eliminado con éxito" });
+            }
+            catch (Exception ex)
+            {
+                // Manejar errores y devolver el mensaje de error como respuesta
+                return BadRequest(new { message = "Error al eliminar el movimiento: " + ex.Message });
+            }
+        }
+
 
         // GET: api/Movimientos/GetNotasDebitoPorBanco/{idBanco}
         [HttpGet("GetNotasDebitoPorBanco/{idBanco}")]
