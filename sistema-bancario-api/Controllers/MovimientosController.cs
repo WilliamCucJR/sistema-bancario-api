@@ -176,6 +176,15 @@ namespace sistema_bancario_api.Controllers
             return Ok(new { message = "Movimiento eliminado con éxito" });
         }
 
+        // DELETE: api/Movimientos/5
+        [HttpDelete("DeleteMovimientoDocumento/{no_documento}")]
+        public async Task<IActionResult> DeleteMovimientoDocumento(string no_documento)
+        {
+            await _context.Database.ExecuteSqlRawAsync($"DELETE FROM MOVIMIENTOS WHERE NO_DOCUMENTO = {no_documento}");
+
+            return Ok(new { message = "Movimiento eliminado con éxito" });
+        }
+
         // GET: api/Movimientos/GetNotasDebitoPorBanco/{idBanco}
         [HttpGet("GetNotasDebitoPorBanco/{idBanco}")]
         public async Task<ActionResult<IEnumerable<MOVIMIENTOS>>> GetNotasDebitoPorBanco(int idBanco)
