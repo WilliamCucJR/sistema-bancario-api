@@ -26,6 +26,7 @@ namespace sistema_bancario_api.Controllers
             return await _context.Moves.FromSqlRaw("SELECT * FROM MOVIMIENTOS ORDER BY ID_CUENTA DESC").ToListAsync();
         }
 
+
         // GET: api/Movimientos/5
         [HttpGet("GetMovimiento/{id}")]
         public async Task<ActionResult<MOVIMIENTOS>> GetMovimiento(int id)
