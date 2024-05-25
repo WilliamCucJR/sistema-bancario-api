@@ -27,7 +27,7 @@ namespace sistema_bancario_api.Controllers
                             $"INNER JOIN TIPO_DOCUMENTO TD ON M.TIPO_DOCUMENTO_ID = TD.ID " +
                             $"INNER JOIN CUENTA_BANCARIA CB ON M.ID_CUENTA = CB.ID_CUENTA " +
                             $"INNER JOIN BANCO B ON CB.BANCO_ID = B.ID_BANCO " +
-                            $"WHERE TD.OPERACION = -1 AND AND TO_CHAR(M.FECHA, 'MM') = '{fecha}' " +
+                            $"WHERE TD.OPERACION = -1 AND TO_CHAR(M.FECHA, 'MM') = '{fecha}' " +
                             $"GROUP BY CB.NO_DE_CUENTA, B.NOMBRE_BANCO " +
                             $"ORDER BY CB.NO_DE_CUENTA")
                 .ToListAsync();

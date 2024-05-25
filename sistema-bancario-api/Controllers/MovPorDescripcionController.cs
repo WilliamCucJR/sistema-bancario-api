@@ -25,7 +25,7 @@ namespace sistema_bancario_api.Controllers
                 .FromSqlRaw($"SELECT a.DESCRIPCION, SUM(a.MONTO) AS MONTO, b.OPERACION " +
                             $"FROM MOVIMIENTOS a " +
                             $"INNER JOIN TIPO_DOCUMENTO b ON a.TIPO_DOCUMENTO_ID = b.ID " +
-                            $"WHERE FECHA LIKE '%{fecha}%' " +
+                            $"WHERE TO_CHAR(FECHA, 'MM') = '{fecha}' " +
                             $"GROUP BY a.DESCRIPCION, b.OPERACION")               
                 .ToListAsync();
 
