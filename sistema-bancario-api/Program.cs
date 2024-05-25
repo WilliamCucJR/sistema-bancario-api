@@ -14,7 +14,8 @@ if (string.IsNullOrEmpty(allowedOrigins))
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowMyOrigin",
-        builder => builder.WithOrigins(allowedOrigins) // Usa la URL de la configuración
+        builder => builder.AllowAnyOrigin()
+        //builder => builder.WithOrigins(allowedOrigins)
                            .AllowAnyMethod()
                            .AllowAnyHeader());
 });
