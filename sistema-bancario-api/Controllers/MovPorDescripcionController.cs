@@ -22,11 +22,11 @@ namespace sistema_bancario_api.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetConciliacion(string fecha)
         {
             var conciliacion = await _context.MovPorDesc
-                .FromSqlRaw($"SELECT a.DESCRIPCION, SUM(a.MONTO) AS MONTO, b.OPERACION " +
+                .FromSqlRaw($"SELECT b.NOMBRE_DOCUMENTO, SUM(a.MONTO) AS MONTO " +
                             $"FROM MOVIMIENTOS a " +
                             $"INNER JOIN TIPO_DOCUMENTO b ON a.TIPO_DOCUMENTO_ID = b.ID " +
                             $"WHERE TO_CHAR(FECHA, 'MM') = '{fecha}' " +
-                            $"GROUP BY a.DESCRIPCION, b.OPERACION")               
+                            $"GROUP BY b.NOMBRE_DOCUMENTO")               
                 .ToListAsync();
 
             if (conciliacion == null)

@@ -95,6 +95,11 @@ builder.Services.AddDbContext<TotalDebitosXCuentaTable>(options =>
     options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
 });
 
+builder.Services.AddDbContext<CashFlowTable>(options =>
+{
+    options.UseOracle(builder.Configuration.GetConnectionString("OracleDB"));
+});
+
 
 var app = builder.Build();
 

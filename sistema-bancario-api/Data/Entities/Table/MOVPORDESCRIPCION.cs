@@ -8,9 +8,8 @@ namespace sistema_bancario_api.Data.Entities.Table
     [Keyless]
     public class MOVPORDESCRIPCION
     {
-        public string? DESCRIPCION { get; set; }
+        public string? NOMBRE_DOCUMENTO { get; set; }
         public int? MONTO { get; set; }
 
-        public int? OPERACION { get; set; }
     }
 }
