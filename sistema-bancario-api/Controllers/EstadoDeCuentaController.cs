@@ -19,33 +19,30 @@ namespace sistema_bancario_api.Controllers
             _context = context;
         }
 
-        [HttpGet("GetEstadoDeCuenta")]
-        public async Task<ActionResult<object>> GetEstadoDeCuenta(string numeroCuenta, int mes)
+        [HttpGet("GetEstadoDeCuenta/{numeroCuenta}/{mes}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetEstadoDeCuenta(string numeroCuenta, int mes)
         {
-            var estadoDeCuenta = await _context.EstadosDeCuenta
-                .Include(e => e.CuentaBancaria)
-                .Include(e => e.Movimientos)
-                .Where(e => e.CuentaBancaria.NO_DE_CUENTA == numeroCuenta && e.Mes == mes)
-                .Select(e => new
-                {
-                    e.CuentaBancaria.NO_DE_CUENTA,
-                    e.Mes,
-                    e.Anio,
-                    Movimientos = e.Movimientos.Select(m => new
-                    {
-                        m.Descripcion,
-                        m.NumeroDocumento,
-                        TipoDocumento = m.TipoOperacion
-                    }).ToList()
-                })
-                .FirstOrDefaultAsync();
+            var movimientos = await _context.MovimientosEstadoCuenta
+                .FromSqlRaw($@"
+                    SELECT 
+                        m.Descripcion, 
+                        m.NoDocumento AS NumeroDocumento, 
+                        CASE 
+                            WHEN m.TipoDocumentoID = 1 THEN 'Debito'
+                            ELSE 'Credito'
+                        END AS TipoOperacion
+                    FROM MOVIMIENTOS m
+                    INNER JOIN CUENTA_BANCARIA c ON m.ID_CUENTA = c.ID_CUENTA
+                    WHERE c.NO_DE_CUENTA = {numeroCuenta} 
+                        AND EXTRACT(MONTH FROM TO_DATE(m.FECHA, 'YYYY-MM-DD')) = {mes}")
+                .ToListAsync();
 
-            if (estadoDeCuenta == null)
+            if (movimientos == null || !movimientos.Any())
             {
                 return NotFound();
             }
 
-            return Ok(estadoDeCuenta);
+            return Ok(movimientos);
         }
     }
 }
