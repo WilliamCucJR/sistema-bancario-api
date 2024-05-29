@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using sistema_bancario_api.Data;
 using sistema_bancario_api.Data.Entities.Table;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,30 +19,31 @@ namespace sistema_bancario_api.Controllers
             _context = context;
         }
 
-        [HttpGet("GetEstadoDeCuenta/{numeroCuenta}/{mes}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetEstadoDeCuenta(string numeroCuenta, int mes)
+        [HttpGet("{noCuenta}/{mes}")]
+        public async Task<ActionResult<IEnumerable<object>>> GetEstadoDeCuenta(int noCuenta, int mes)
         {
-            var movimientos = await _context.MovimientosEstadoCuenta
-                .FromSqlRaw($@"
-                    SELECT 
-                        m.Descripcion, 
-                        m.NoDocumento AS NumeroDocumento, 
-                        CASE 
-                            WHEN m.TipoDocumentoID = 1 THEN 'Debito'
-                            ELSE 'Credito'
-                        END AS TipoOperacion
-                    FROM MOVIMIENTOS m
-                    INNER JOIN CUENTA_BANCARIA c ON m.ID_CUENTA = c.ID_CUENTA
-                    WHERE c.NO_DE_CUENTA = {numeroCuenta} 
-                        AND EXTRACT(MONTH FROM TO_DATE(m.Fecha, 'YYYY-MM-DD')) = {mes}")
-                .ToListAsync();
-
-            if (movimientos == null || !movimientos.Any())
+            try
             {
-                return NotFound();
-            }
+                var estadoDeCuenta = await _context.EstadoDeCuenta
+                    .FromSqlRaw($"SELECT a.NUMERO_DOCUMENTO, a.DESCRIPCION, a.MONTO, a.TIPO_DOCUMENTO, a.OPERACION " +
+                                 $"FROM ESTADODECUENTA a " +
+                                 $"WHERE a.NO_DE_CUENTA = {noCuenta} AND " +
+                                 $"EXTRACT(MONTH FROM a.FECHA) = {mes} AND " +
+                                 $"EXTRACT(YEAR FROM a.FECHA) = {DateTime.Now.Year} " +
+                                 $"ORDER BY a.FECHA DESC")
+                    .ToListAsync();
 
-            return Ok(movimientos);
+                if (estadoDeCuenta == null || !estadoDeCuenta.Any())
+                {
+                    return NotFound("No se encontraron movimientos para la cuenta especificada en el mes y año actual.");
+                }
+
+                return Ok(estadoDeCuenta);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
         }
     }
 }
