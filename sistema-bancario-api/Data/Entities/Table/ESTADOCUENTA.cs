@@ -6,14 +6,15 @@ namespace sistema_bancario_api.Data.Entities.Table
     [Table("ESTADODECUENTA")]
     public class ESTADODECUENTA
     {
-        public string NumeroDocumento { get; set; }
-
-        public string Descripcion { get; set; }
-
-        public decimal Monto { get; set; }
-
-        public string TipoDocumento { get; set; }
-
-        public string Operacion { get; set; }
+        [Key]
+        public int ID_MOVIMIENTO { get; set; }
+        public string? DESCRIPCION { get; set; }
+        public DateTime? FECHA { get; set; }
+        public string? NO_DOCUMENTO { get; set; }
+        public int? TIPO_DOCUMENTO_ID { get; set; }
+        public decimal? MONTO { get; set; }
+        public string? NO_DE_CUENTA { get; set; }
+        public string? NOMBRE_DOCUMENTO { get; set; }
+        public string? OPERACION { get; set; }
     }
 }

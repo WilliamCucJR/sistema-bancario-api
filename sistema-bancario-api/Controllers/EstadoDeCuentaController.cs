@@ -20,30 +20,43 @@ namespace sistema_bancario_api.Controllers
         }
 
         [HttpGet("{noCuenta}/{mes}")]
-        public async Task<ActionResult<IEnumerable<object>>> GetEstadoDeCuenta(int noCuenta, int mes)
+        public async Task<ActionResult<IEnumerable<object>>> GetEstadoDeCuenta(int noCuenta, string mes)
         {
-            try
-            {
-                var estadoDeCuenta = await _context.EstadoDeCuenta
-                    .FromSqlRaw($"SELECT a.NUMERO_DOCUMENTO, a.DESCRIPCION, a.MONTO, a.TIPO_DOCUMENTO, a.OPERACION " +
-                                 $"FROM ESTADODECUENTA a " +
-                                 $"WHERE a.NO_DE_CUENTA = {noCuenta} AND " +
-                                 $"EXTRACT(MONTH FROM a.FECHA) = {mes} AND " +
-                                 $"EXTRACT(YEAR FROM a.FECHA) = {DateTime.Now.Year} " +
-                                 $"ORDER BY a.FECHA DESC")
-                    .ToListAsync();
 
-                if (estadoDeCuenta == null || !estadoDeCuenta.Any())
-                {
-                    return NotFound("No se encontraron movimientos para la cuenta especificada en el mes y año actual.");
-                }
-
-                return Ok(estadoDeCuenta);
-            }
-            catch (Exception ex)
+            var estadoDeCuenta = await _context.EstadoDeCuenta
+            .FromSqlRaw(@"SELECT a.ID_MOVIMIENTO, 
+                                 a.DESCRIPCION, 
+                                 a.FECHA, 
+                                 a.NO_DOCUMENTO, 
+                                 a.TIPO_DOCUMENTO_ID, 
+                                 a.MONTO, 
+                                 b.NO_DE_CUENTA, 
+                                 c.NOMBRE_DOCUMENTO, 
+                                 c.OPERACION
+                          FROM MOVIMIENTOS a
+                          INNER JOIN CUENTA_BANCARIA b ON b.ID_CUENTA = a.ID_CUENTA
+                          INNER JOIN TIPO_DOCUMENTO c ON c.ID = a.TIPO_DOCUMENTO_ID
+                          WHERE b.NO_DE_CUENTA = {0} 
+                          AND EXTRACT(MONTH FROM a.FECHA) = {1}
+                          ORDER BY a.FECHA DESC", noCuenta, mes)
+            .Select(m => new
             {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+                m.DESCRIPCION,
+                m.FECHA,
+                m.NO_DOCUMENTO,
+                m.MONTO,
+                m.NO_DE_CUENTA,
+                m.OPERACION,
+                m.NOMBRE_DOCUMENTO
+            })
+            .ToListAsync();
+
+            if (estadoDeCuenta == null)
+            {
+                return NotFound();
             }
+
+            return estadoDeCuenta;
         }
     }
 }
