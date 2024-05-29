@@ -34,7 +34,7 @@ namespace sistema_bancario_api.Controllers
                     FROM MOVIMIENTOS m
                     INNER JOIN CUENTA_BANCARIA c ON m.ID_CUENTA = c.ID_CUENTA
                     WHERE c.NO_DE_CUENTA = {numeroCuenta} 
-                        AND EXTRACT(MONTH FROM TO_DATE(m.FECHA, 'YYYY-MM-DD')) = {mes}")
+                        AND EXTRACT(MONTH FROM TO_DATE(m.Fecha, 'YYYY-MM-DD')) = {mes}")
                 .ToListAsync();
 
             if (movimientos == null || !movimientos.Any())
