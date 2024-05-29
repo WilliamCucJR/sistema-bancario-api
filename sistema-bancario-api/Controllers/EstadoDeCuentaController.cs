@@ -2,45 +2,50 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using sistema_bancario_api.Data;
 using sistema_bancario_api.Data.Entities.Table;
-using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace sistema_bancario_api.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
-    [Route("[controller]")]
     public class EstadoDeCuentaController : ControllerBase
     {
-        private readonly EstadoDeCuentaTable _estadoDeCuentaTable;
+        private readonly EstadoDeCuentaTable _context;
 
-        public EstadoDeCuentaController(EstadoDeCuentaTable estadoDeCuentaTable)
+        public EstadoDeCuentaController(EstadoDeCuentaTable context)
         {
-            _estadoDeCuentaTable = estadoDeCuentaTable;
+            _context = context;
         }
 
-        [HttpGet]
-        public IActionResult GetEstadoDeCuenta(int numeroCuenta, int mes)
+        [HttpGet("GetEstadoDeCuenta")]
+        public async Task<ActionResult<object>> GetEstadoDeCuenta(string numeroCuenta, int mes)
         {
-            var estadoDeCuenta = _estadoDeCuentaTable.EstadosDeCuenta
+            var estadoDeCuenta = await _context.EstadosDeCuenta
+                .Include(e => e.CuentaBancaria)
                 .Include(e => e.Movimientos)
-                .FirstOrDefault(e => e.ID_CUENTA == numeroCuenta && e.Mes == mes);
-
-            if (estadoDeCuenta != null)
-            {
-                var movimientos = estadoDeCuenta.Movimientos
-                    .Select(m => new
+                .Where(e => e.CuentaBancaria.NO_DE_CUENTA == numeroCuenta && e.Mes == mes)
+                .Select(e => new
+                {
+                    e.CuentaBancaria.NO_DE_CUENTA,
+                    e.Mes,
+                    e.Anio,
+                    Movimientos = e.Movimientos.Select(m => new
                     {
-                        Descripcion = m.Descripcion,
-                        NumeroDocumento = m.NumeroDocumento,
-                        TipoOperacion = m.TipoOperacion
-                    });
+                        m.Descripcion,
+                        m.NumeroDocumento,
+                        TipoDocumento = m.TipoOperacion
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
 
-                return Ok(movimientos);
-            }
-            else
+            if (estadoDeCuenta == null)
             {
-                return NotFound($"No se encontró el estado de cuenta para la cuenta #{numeroCuenta} en el mes {mes}");
+                return NotFound();
             }
+
+            return Ok(estadoDeCuenta);
         }
     }
 }

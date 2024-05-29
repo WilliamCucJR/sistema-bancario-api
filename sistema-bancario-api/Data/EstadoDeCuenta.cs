@@ -9,6 +9,8 @@ namespace sistema_bancario_api.Data
 
         public DbSet<ESTADODECUENTA> EstadosDeCuenta { get; set; }
         public DbSet<MovimientoEstadoCuenta> MovimientosEstadoCuenta { get; set; }
+        public DbSet<CUENTA_BANCARIA> CuentasBancarias { get; set; }
+        public DbSet<MOVIMIENTOS> Movimientos { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +24,12 @@ namespace sistema_bancario_api.Data
                 .HasOne(m => m.EstadoDeCuenta)
                 .WithMany(e => e.Movimientos)
                 .HasForeignKey(m => m.EstadoDeCuentaID);
+
+            modelBuilder.Entity<CUENTA_BANCARIA>()
+                .HasKey(c => c.ID_CUENTA);
+
+            modelBuilder.Entity<MOVIMIENTOS>()
+                .HasKey(m => m.ID_MOVIMIENTO);
         }
     }
 }
